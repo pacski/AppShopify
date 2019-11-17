@@ -32,7 +32,7 @@ app.prepare().then(() => {
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
-      scopes: SCOPES,
+      scopes: [SCOPES],
 
       async afterAuth(ctx) {
         //Auth token and shop available in session

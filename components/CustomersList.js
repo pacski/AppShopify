@@ -28,9 +28,14 @@ class CustomersList extends React.Component {
            if (error) return <div>{error.message}</div>;
            console.log(data);
            return (
-             <Card>
-               <p>stuff here</p>
-             </Card>
+            <div>
+            {data.customers.edges.map((edges, index) => (
+              <Card key={index}>
+                <p>{edges.node.displayName}</p>
+                <p>{edges.node.email} </p>
+              </Card>
+            ))}
+          </div>
            );
          }}
        </Query>
