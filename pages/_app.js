@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import "@shopify/polaris/styles.css";
 import translations from "@shopify/polaris/locales/en.json";
 
+
 const client = new ApolloClient({
   fetchOptions: {
     credentials: "include"
@@ -27,8 +28,8 @@ class MyApp extends App {
             }}
           >
             <ApolloProvider client={client}>
-              <Component {...pageProps} />
-            </ApolloProvider>
+             <Component {...pageProps} />
+           </ApolloProvider>
           </Provider>
         </AppProvider>
       </Container>
