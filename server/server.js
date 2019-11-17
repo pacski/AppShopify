@@ -10,6 +10,8 @@ import session from "koa-session";
 import * as handlers from "./handlers/index";
 const getSubscriptionUrl = require('../server/getSubscriptionUrl');
 
+const {receiveWebhook, registerWebhook} = require('@shopify/koa-shopify-webhooks');
+
 dotenv.config();
 
 
@@ -39,21 +41,39 @@ app.prepare().then(() => {
         ctx.cookies.set("shopOrigin", shop, {
           httpOnly: false
         });
+        const registration = await registerWebhook({
+                address: `${HOST}/webhooks/products/create`,
+                topic: 'PRODUCTS_CREATE',
+                accessToken,
+                shop,
+                apiVersion: ApiVersion.October19
+              });
+              if (registration.success) {
+                      console.log('Successfully registered webhook!');
+                    } else {
+                      console.log('Failed to register webhook', registration.result);
+                    }
         await getSubscriptionUrl(ctx, accessToken, shop);
       }
     })
   );
+  const webhook = receiveWebhook({secret: SHOPIFY_API_SECRET});
+  router.post('/webhooks/products/create', webhook, (ctx) => {
+        console.log('received webhook: ', ctx.state.webhook);
+      });
   
   server.use(
     graphQLProxy({
       version: ApiVersion.October19
     })
   );
-  router.get("*", verifyRequest(), async ctx => {
-    await handle(ctx.req, ctx.res);
-    ctx.respond = false;
-    ctx.res.statusCode = 200;
-  });
+  router.get('*', verifyRequest(), async (ctx) => {
+       await handle(ctx.req, ctx.res);
+       ctx.respond = false;
+       ctx.res.statusCode = 200;
+      });
+      server.use(router.allowedMethods());
+      server.use(router.routes());
   server.use(router.allowedMethods());
   server.use(router.routes());
   server.listen(port, () => {
